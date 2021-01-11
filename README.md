@@ -10,6 +10,6 @@ Functions in python to read:
 
 ### Sample Data:
 
-1. EDF file can be found in this [link](https://www.isip.piconepress.com/projects/tuh_eeg/html/downloads.shtml).
+1. EDF files can be found in this [link](https://www.isip.piconepress.com/projects/tuh_eeg/html/downloads.shtml).
 2. A sample MAT file is provided in sample-data folder
 3. A sample EEG recording made using Curry Software will be updated soon.
