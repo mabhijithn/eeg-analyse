@@ -28,6 +28,7 @@ def loadeeg(filename,filetype='EDF'):
                 a struct with following fields:
                     data : T X N matrix with T samples and N channels
                     fs: Sampling frequency (in Hz)
+                    channels: Names of EEG channels in a cell array
             'CURRY': EEG data recorded using Curry Neuro Imaging Suite by 
             Compumedics. There should be 3 files associated with a recording 
             with following extensions: '.dat','.rs3' and '.dap'. All three
@@ -40,6 +41,7 @@ def loadeeg(filename,filetype='EDF'):
         A dictionary with (at least) the following two keys
         data: numpy array of size T X N with T samples and N channels.
         fs: sampling frequency of the EEG data
+        channels: dictionary with key:value pair as {index:channel name}
     '''
     eegdataDict = {}
     eegdataDict['data'] = []
@@ -47,6 +49,9 @@ def loadeeg(filename,filetype='EDF'):
     eegdataDict['channels'] = {}
     if filetype=='EDF':
          # Open an EDF file 
+         ext = filename[-3:]
+         if ('EDF' != ext) | ('edf' != ext):
+             raise Exception('File is not in EDF format! Check filetype argument for options..')
          fp = pyedflib.EdfReader(filename)
                           
          num_chans = fp.signals_in_file
@@ -89,15 +94,19 @@ def loadeeg(filename,filetype='EDF'):
             if not robject:
                 eegstruct = dataDict[key]
                 break
-        eegdata = eegstruct[0.0]
-        if 'data' in eegdata:
-            data = eegdata['data']
-        else:
-            raise Exception(r' "data" field not found in MAT file')
-        if 'fs' in eegdata:
-            fs = eegdata['fs']
+        eegdata = eegstruct[0,0]
+        data = eegdata['data']
+        fs = eegdata['fs']
+        channames = eegdata['channels']
+        channels = {}
+        num_of_chans = channames.shape[1]
+        for count in range(num_of_chans):
+            c = channames[0,count]
+            channels[count] = str(c[0])
+
         eegdataDict['data'] = data
         eegdataDict['fs'] = fs
+        eegdataDict['channels'] = channels
     elif filetype=='CURRY':
         eegdataDict = loadcurryfile(filename)
     return eegdataDict
@@ -195,7 +204,7 @@ def loadcurryfile(filename):
             othernameflag = 1
             
     f.close()
-    channels = [{key:channames[count] for count,key in enumerate(channums)}]
+    channels = {key:channames[count] for count,key in enumerate(channums)}
 
     # Read data in dat file
     file = mainfilename+'.' + 'dat'
@@ -216,7 +225,49 @@ def loadcurryfile(filename):
     eegdataDict['markers'] = markers
     eegdataDict['params'] = params
     return eegdataDict
+
+def rereference(eegdataDict,mode='avg'):
+    '''
+    Parameters
+    ----------
+    eegdataDict : dictionary
+        Dictionary containing (at least) following fields: 'data', 'fs' and 
+        'channels' which contain EEG data (time samples X number of channels),
+        sampling frequency and channel-names respectively
+    mode : str, optional
+        Re-referencing mode. The default is 'avg' which corresponds to common 
+        average referencing.
+        Options:
+            'Cz' - All channels are re-referenced to the 'Cz' electrode (if 
+            present in 'channels')
+
+    Returns
+    -------
+    eegdataDict : dictionary
+        input dictionary with data re-referenced        
+    '''
+    defaultkeys = ['data','fs','channels']
+    for key in defaultkeys:
+        if key not in eegdataDict:
+            raise Exception(f'{key} not found in input dictionary')
     
+    data = eegdataDict['data']
+    if mode=='avg':
+        avgdata = np.average(data,axis=1)
+        avgdata = np.reshape(avgdata,(len(avgdata),1))
+        data_reref = data - avgdata
+        eegdataDict['avgdata'] = avgdata
+    elif mode=='Cz':
+        channels = eegdataDict['channels']    
+        idx = next((key for key in channels if (channels[key]=='Cz') | (channels[key]=='CZ')),None)
+        if idx is None:
+            raise Exception('Cz channel not found!')
+        else:
+            czdata = data[:,idx]            
+            data_reref = data - np.reshape(czdata,(len(czdata),1))
+            eegdataDict['data'] = data_reref    
+    return eegdataDict
+
 def _index(labels, match):
     regex = re.compile('^EEG\ ?{}-(REF|LE)'.format(match))
     for i, item in enumerate(labels):
