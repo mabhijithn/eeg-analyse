@@ -1,4 +1,4 @@
-# EEG Analysis in python
+# EEG analysis in python
 Scripts and functions to analyse various paradigms and experiments in EEG signal processing literature
 
 ## v0.1:
