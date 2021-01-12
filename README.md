@@ -1,5 +1,6 @@
 # EEG analysis using python
-Scripts and functions to analyse various paradigms and experiments in EEG signal processing literature
+
+_There are many toolboxes available for EEG analysis in python. However, I have found that most of these toolboxes involve a steep learning curve. Moreover, visualization is a tough sell for many such toolboxes. This toolbox is start of a journey towards a simple, easily re-useable toolbox in python which will help researchers read, analyse and visualize EEG recorded and distributed in various formats._
 
 ## v0.1:
 Functions in python to read and re-reference:
