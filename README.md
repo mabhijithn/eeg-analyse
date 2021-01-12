@@ -2,10 +2,11 @@
 Scripts and functions to analyse various paradigms and experiments in EEG signal processing literature
 
 ## v0.1:
-Functions in python to read:
+Functions in python to read and re-reference:
 1. EDF files (Temple University Seizure Corpus format)
-2. MAT file (exported from `matlab` using custom format specified in the function)
+2. MAT file (exported from `matlab` using format specified)
 3. DAT file recorded using Curry Software
+
 
 
 ### Sample Data:
