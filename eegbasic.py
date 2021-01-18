@@ -89,21 +89,21 @@ def loadeeg(filename,filetype='EDF'):
          eegdataDict['channels'] = channels
     elif filetype=='MAT':
         dataDict = loadmat(filename)
-        for key in dataDict:
-            robject = re.search('^__',key)
-            if not robject:
-                eegstruct = dataDict[key]
-                break
-        eegdata = eegstruct[0,0]
-        data = eegdata['data']
-        fs = eegdata['fs']
-        channames = eegdata['channels']
-        channels = {}
-        num_of_chans = channames.shape[1]
-        for count in range(num_of_chans):
-            c = channames[0,count]
-            channels[count] = str(c[0])
-
+        data = dataDict['data']
+        fs = dataDict['fs']
+        if 'channels' in dataDict:
+            channames = dataDict['channels']
+            channels = {}
+            num_of_chans = channames.shape[1]
+            for count in range(num_of_chans):
+                c = channames[0,count]
+                channels[count] = str(c[0])
+        else:
+             channels = {}
+             num_of_chans = data.shape[1]
+             for count in range(num_of_chans):
+                c = count
+                channels[count] = str(c)
         eegdataDict['data'] = data
         eegdataDict['fs'] = fs
         eegdataDict['channels'] = channels
