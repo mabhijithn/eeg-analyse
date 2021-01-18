@@ -1,0 +1,13 @@
+name: eeganalyse
+channels:
+  - conda-forge
+dependencies:
+  - python==3.8
+  - pip
+  - numpy
+  - scipy
+  - plotly
+  - resampy
+  - pandas
+  - pip:
+     - pyedflib
