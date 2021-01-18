@@ -1,0 +1,12 @@
+certifi
+llvmlite
+numba
+pandas
+plotly
+pyEDFlib
+python-dateutil
+pytz
+resampy==0.2.2
+retrying==1.3.3
+scipy
+six
