@@ -40,7 +40,7 @@ def loadeeg(filename,filetype='EDF'):
     eegdataDict: dict
         A dictionary with (at least) the following two keys
         data: numpy array of size T X N with T samples and N channels.
-        fs: sampling frequency of the EEG data
+        fs: sampling frequency of the EEG data (uint8)
         channels: dictionary with key:value pair as {index:channel name}
     '''
     eegdataDict = {}
@@ -105,7 +105,7 @@ def loadeeg(filename,filetype='EDF'):
                 c = count
                 channels[count] = str(c)
         eegdataDict['data'] = data
-        eegdataDict['fs'] = fs
+        eegdataDict['fs'] = fs[0,0]
         eegdataDict['channels'] = channels
     elif filetype=='CURRY':
         eegdataDict = loadcurryfile(filename)
