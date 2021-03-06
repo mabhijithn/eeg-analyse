@@ -7,7 +7,7 @@ _There are many toolboxes available for EEG analysis in python. However, I have 
 Functions in python to read and re-reference:
 1. EDF files (Temple University Seizure Corpus format)
 2. MAT file (exported from `matlab` using format specified)
-3. DAT file recorded using Curry Software
+3. DAT file recorded using [CURRY 8 X – Data Acquisition and Online Processing](https://compumedicsneuroscan.com/product/curry-data-acquisition-online-processing-x/)
 
 
 
