@@ -10,6 +10,7 @@ from scipy.io import loadmat
 import numpy as np
 import re
 import os.path as path
+import struct
 
 def loadeeg(filename,filetype='EDF'):
     '''
@@ -273,3 +274,74 @@ def _index(labels, match):
     for i, item in enumerate(labels):
         if re.search(regex, item):
             return i
+
+def feats_to_numpy(featfile):
+    '''
+    Converts the features extracted from TUSZ EEG files to a numpy array.
+    The original feature file is available in the TUSZ database in binary format.
+    TUSZ - Temple University Seizure dataset
+
+    Parameters
+    ----------
+    featfile : str/path
+        The `raw` file as available in the TUSZ  dataset.
+
+    Returns
+    -------
+    data : dict
+        A dictionary with following keys:
+            'filename' : name of the file (identifies which EEG file it corres-
+                                           ponds to)
+            'feats' : Feature vectors in a numpy array of shape:
+                      (length of feature vector, number of channels,number of 
+                       frames)
+
+    '''
+    bytesize = 4
+    # Read basic details
+    #length of feature vector, number of channels, number of frames
+    with open(featfile, "rb") as fh:
+        byte_read = fh.read(bytesize) # number of channels
+        no_of_channels = int.from_bytes(byte_read, byteorder="little")
+
+        byte_read = fh.read(bytesize) # number of frames
+        no_of_frames = int.from_bytes(byte_read, byteorder="little")
+        
+        byte_read = fh.read(bytesize) # length of feature vector
+        no_of_feats = int.from_bytes(byte_read, byteorder="little")
+        
+    signal = np.empty(shape=(no_of_feats,no_of_channels, no_of_frames), dtype='float32')
+    
+    with open(featfile, "rb") as fh:
+        fh.read(bytesize) # Parse and ignore first 8 bytes (already collected)
+        fh.read(bytesize) # 
+        bytes_to_read = no_of_channels*(no_of_feats+1)*bytesize*no_of_frames
+        dataread = fh.read(bytes_to_read)
+    
+    idx = 0
+    framecount = 0
+    chcount = 0
+    # Load the binary data read to a numpy array
+    while idx<len(dataread):
+        strt = idx+bytesize
+        stp = strt+(bytesize*(no_of_feats))
+        featpframe = dataread[strt:stp]
+        FLOAT = 'f'
+        fmt = '<' + FLOAT * (len(featpframe) // struct.calcsize(FLOAT))
+        featvals = np.asarray(struct.unpack(fmt, featpframe),dtype='float32').reshape((no_of_feats,))
+
+        signal[:,chcount,framecount] = featvals
+
+        framecount += 1
+        if framecount == no_of_frames:
+            chcount += 1
+            framecount = 0
+        idx = stp
+        
+    filesplit = featfile.split('/')
+    filename = filesplit[-1][:-4]
+    
+    data = {}
+    data['feats'] = signal
+    data['filename'] = filename
+    return data
