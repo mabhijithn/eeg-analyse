@@ -221,7 +221,7 @@ def loadcurryfile(filename):
         markers = newdata[:,idx]
         data = np.delete(newdata,idx,axis=1)
     eegdataDict['data'] = data
-    eegdataDict['fs'] = params['SampleFreqHz']
+    eegdataDict['fs'] = float(params['SampleFreqHz'])
     eegdataDict['channels'] = channels
     eegdataDict['markers'] = markers
     eegdataDict['params'] = params
