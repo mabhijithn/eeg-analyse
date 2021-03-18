@@ -270,6 +270,22 @@ def rereference(eegdataDict,mode='avg'):
     return eegdataDict
 
 def _index(labels, match):
+    '''
+    Return the index in labels of the channel name in match
+
+    Parameters
+    ----------
+    labels : list
+        A list of channel names.
+    match : str
+        A channel name to be searched for in list.
+
+    Returns
+    -------
+    i : int
+        Index of match in labels.
+
+    '''
     regex = re.compile('^EEG\ ?{}-(REF|LE)'.format(match))
     for i, item in enumerate(labels):
         if re.search(regex, item):
